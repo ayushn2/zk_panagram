@@ -16,8 +16,6 @@ What it does:
 - Produces an intermediate representation of the circuit in JSON format inside the ./target directory.
 - This JSON file contains the arithmetic constraints that define the circuit and will be used to generate proving and verification keys.
 
----
-
 ### 2. Generate Verification Key
 
 ```bash
@@ -36,8 +34,6 @@ What it does:
 Output:
 
 - A file named vk in the target directory.
-
----
 
 ## 3. Generate Solidity Verifier
 
