@@ -11,6 +11,7 @@ contract PanagramTest is Test{
    Panagram public panagram;
    address public constant PLAYER1 = address(0x1);
    uint256 constant FIELD_MODULUS  = 21888242871839275222246405745257275088548364400416034343698204186575808495617; //prime field order
+   bytes32 ANSWER;
     
     function setUp() public{
         // deploy the verifier
@@ -21,7 +22,7 @@ contract PanagramTest is Test{
 
 
         // create the answer
-        bytes32 ANSWER = bytes32(uint256(keccak256("ANSWER")) % FIELD_MODULUS);
+        ANSWER = bytes32(uint256(keccak256("ANSWER")) % FIELD_MODULUS);
 
         // start a new round
         panagram.newRound(ANSWER);
@@ -37,13 +38,15 @@ contract PanagramTest is Test{
         inputs[3] = vm.toString(guess);
         inputs[4] = vm.toString(correctAnswer);
 
-        bytes memory result = vm.ffi(inputs);
-        return abi.decode(result, (bytes));
+        bytes memory encodedProof = vm.ffi(inputs);
+        _proof = abi.decode(encodedProof, (bytes));
+        console.logBytes(_proof);
     }
 
     // test someone receives NFT 0 if they guess correctly first
     function testCorrectFirstGuess() public {
         vm.prank(PLAYER1);
+        bytes memory proof = _getProof(ANSWER, ANSWER);
         panagram.makeGuess(proof);
     }
 
