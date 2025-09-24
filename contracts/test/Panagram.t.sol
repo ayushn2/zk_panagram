@@ -48,6 +48,12 @@ contract PanagramTest is Test{
         vm.prank(PLAYER1);
         bytes memory proof = _getProof(ANSWER, ANSWER);
         panagram.makeGuess(proof);
+        vm.assertEq(panagram.balanceOf(PLAYER1, 0), 1);
+        vm.assertEq(panagram.balanceOf(PLAYER1, 1), 0);
+
+        vm.prank(PLAYER1);
+        vm.expectRevert();
+        panagram.makeGuess(proof);
     }
 
     // test someone receive s NFT 1 if they guess correctly second
