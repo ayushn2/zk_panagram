@@ -34,7 +34,7 @@ contract PanagramTest is Test{
         string[] memory inputs = new string[](NUM_ARGS);
         inputs[0] = "npx";
         inputs[1] = "tsx";
-        inputs[2] = "js-scripts/generate-proof.js";
+        inputs[2] = "js-scripts/generateProof.ts";
         inputs[3] = vm.toString(guess);
         inputs[4] = vm.toString(correctAnswer);
 

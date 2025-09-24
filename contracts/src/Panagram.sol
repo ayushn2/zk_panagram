@@ -26,7 +26,7 @@ contract Panagram is ERC1155, Ownable {
     error Panagram_MinTimeNotPassed(uint256 required, uint256 actual);
     error Panagram_NoWinner();
     error Panagram__FirstPanagramNotSet();
-    error Panagram__alreadyWon();
+    error Panagram__alreadyWon(uint256 round, address user);
     error Panagram__InvalidProof();
 
     constructor(IVerifier _verifier) ERC1155("ipfs://QmPlaceholderCID/{id}.json") Ownable(msg.sender){
@@ -56,19 +56,19 @@ contract Panagram is ERC1155, Ownable {
     }
 
     // function to allow users to submit a guess
-    function makeGuess(bytes memory proof) external returns (bool) {
+    function makeGuess(bytes memory _proof) external returns (bool) {
         // check whether the first round has been initialized
         if (s_currentRound == 0){
             revert Panagram__FirstPanagramNotSet();
         }
         // check if the user has laready won this round
         if (s_lastCorrectGuessRound[msg.sender] == s_currentRound){
-            revert Panagram__alreadyWon();
+            revert Panagram__alreadyWon(s_currentRound, msg.sender);
         }
         // check the proof and verify with verifier smart contract
         bytes32[] memory publicInputs = new bytes32[](1);
         publicInputs[0] = s_answer;
-        bool proofResult = s_verifier.verify(proof, publicInputs);
+        bool proofResult = s_verifier.verify(_proof, publicInputs);
         if (!proofResult){
             revert Panagram__InvalidProof();
         }

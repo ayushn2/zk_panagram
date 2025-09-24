@@ -11,7 +11,7 @@ path.dirname(fileURLToPath(import.meta.url)) //gives the path of the current fil
 
 const circuitPath = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  "../circuits/target/panagram.circuit.json"
+  "../circuits/target/zk_panagram.json"
 );
 
 const circuit = JSON.parse(fs.readFileSync(circuitPath, "utf-8"))
