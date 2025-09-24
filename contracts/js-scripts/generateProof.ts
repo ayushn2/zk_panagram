@@ -30,7 +30,9 @@ export default async function generateProof() {
             // private inputs
             guess_hash: inputsArray[0],
             // public inputs
-            answer_hash: inputsArray[1]
+            answer_hash: inputsArray[1],
+            // address as a field element
+            address: inputsArray[2],
         }
         // Execute the circuit with the inputs to create the witness
         const {witness} = await noir.execute(inputs)

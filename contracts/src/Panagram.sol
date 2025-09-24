@@ -66,8 +66,10 @@ contract Panagram is ERC1155, Ownable {
             revert Panagram__alreadyWon(s_currentRound, msg.sender);
         }
         // check the proof and verify with verifier smart contract
-        bytes32[] memory publicInputs = new bytes32[](1);
+        bytes32[] memory publicInputs = new bytes32[](2);
         publicInputs[0] = s_answer;
+        publicInputs[1] = bytes32(uint256(uint160(msg.sender)));
+        
         bool proofResult = s_verifier.verify(_proof, publicInputs);
         if (!proofResult){
             revert Panagram__InvalidProof();

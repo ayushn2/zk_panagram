@@ -29,14 +29,15 @@ contract PanagramTest is Test{
         
     }
 
-    function _getProof(bytes32 guess, bytes32 correctAnswer) internal returns (bytes memory _proof){
-        uint256 NUM_ARGS = 5;
+    function _getProof(bytes32 guess, bytes32 correctAnswer, address sender) internal returns (bytes memory _proof){
+        uint256 NUM_ARGS = 6;
         string[] memory inputs = new string[](NUM_ARGS);
         inputs[0] = "npx";
         inputs[1] = "tsx";
         inputs[2] = "js-scripts/generateProof.ts";
         inputs[3] = vm.toString(guess);
         inputs[4] = vm.toString(correctAnswer);
+        inputs[5] = vm.toString(sender);
 
         bytes memory encodedProof = vm.ffi(inputs);
         _proof = abi.decode(encodedProof, (bytes));
@@ -46,7 +47,7 @@ contract PanagramTest is Test{
     // test someone receives NFT 0 if they guess correctly first
     function testCorrectFirstGuess() public {
         vm.prank(PLAYER1);
-        bytes memory proof = _getProof(ANSWER, ANSWER);
+        bytes memory proof = _getProof(ANSWER, ANSWER, PLAYER1);
         panagram.makeGuess(proof);
         vm.assertEq(panagram.balanceOf(PLAYER1, 0), 1);
         vm.assertEq(panagram.balanceOf(PLAYER1, 1), 0);
@@ -57,6 +58,22 @@ contract PanagramTest is Test{
     }
 
     // test someone receive s NFT 1 if they guess correctly second
+    function testCorrectSecondGuess() public {
+        vm.prank(PLAYER1);
+        bytes memory proof = _getProof(ANSWER, ANSWER, PLAYER1);
+        panagram.makeGuess(proof);
+        vm.assertEq(panagram.balanceOf(PLAYER1, 0), 1);
+        vm.assertEq(panagram.balanceOf(PLAYER1, 1), 0);
+
+        address PLAYER2 = makeAddr("user2");
+        vm.prank(PLAYER2);
+        bytes memory proof2 = _getProof(ANSWER, ANSWER, PLAYER2);
+        panagram.makeGuess(proof2);
+        vm.assertEq(panagram.balanceOf(PLAYER2, 0), 0);
+        vm.assertEq(panagram.balanceOf(PLAYER2, 1), 1);
+
+    }
+
     // test we can start a new round after time has passed and there was a winner
 
 }
