@@ -76,4 +76,29 @@ contract PanagramTest is Test{
 
     // test we can start a new round after time has passed and there was a winner
 
+    function testStartSecondRound() public{
+        vm.prank(PLAYER1);
+        bytes memory proof = _getProof(ANSWER, ANSWER, PLAYER1);
+        panagram.makeGuess(proof);
+        vm.assertEq(panagram.balanceOf(PLAYER1, 0), 1);
+        vm.assertEq(panagram.balanceOf(PLAYER1, 1), 0);
+
+        vm.warp(panagram.MIN_DURATION() + 1);
+        bytes32 NEW_ANSWER = bytes32(uint256(keccak256("NEW_ANSWER")) % FIELD_MODULUS);
+        panagram.newRound(NEW_ANSWER);
+
+        vm.assertEq(panagram.s_currentRound(), 2);
+        vm.assertEq(panagram.s_currentRoundWinner(), address(0));
+        vm.assertEq(panagram.s_answer(), NEW_ANSWER);
+    }
+
+    function testIncorrectProof() public {
+        vm.prank(PLAYER1);
+        bytes memory proof = _getProof(bytes32(uint256(keccak256("outnumber")) % FIELD_MODULUS), bytes32(uint256(keccak256("outnumber")) % FIELD_MODULUS), PLAYER1);
+
+        vm.expectRevert();
+        panagram.makeGuess(proof);
+        
+    }
+
 }
