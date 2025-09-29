@@ -25,15 +25,23 @@ export default async function generateProof() {
         const noir = new Noir(circuit);
         // initialize the backend using the circuit bytecode
         const backend = new UltraHonkBackend(circuit.bytecode, {threads: 1});
-        // create the inputs
-        const inputs ={
-            // private inputs
-            guess_hash: inputsArray[0],
-            // public inputs
-            answer_hash: inputsArray[1],
-            // address as a field element
-            address: inputsArray[2],
+
+        // Convert hex string to decimal string
+        function hexToDecimalString(hex: string): string {
+            return BigInt(hex).toString(); // converts 0x... to decimal
         }
+        // get the inputs from command line arguments
+        const guessHash = hexToDecimalString(process.argv[2]);
+        const answerHash = hexToDecimalString(process.argv[3]);
+        const address = hexToDecimalString(process.argv[4]);
+
+
+        // create the inputs
+        const inputs = {
+        guess_hash: guessHash,
+        answer_hash: answerHash,
+        address: address,
+    };
         // Execute the circuit with the inputs to create the witness
         const {witness} = await noir.execute(inputs)
         // Generate the proof (using the backend) with the witness
