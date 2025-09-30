@@ -11,7 +11,8 @@ contract PanagramTest is Test{
    Panagram public panagram;
    address public constant PLAYER1 = address(0x1);
    uint256 constant FIELD_MODULUS  = 21888242871839275222246405745257275088548364400416034343698204186575808495617; //prime field order
-   bytes32 ANSWER;
+   bytes32 ANSWER = bytes32(uint256(keccak256(abi.encodePacked(bytes32(uint256(keccak256("ANSWER")) % FIELD_MODULUS)))) % FIELD_MODULUS); // double hash of "ANSWER" as per the circuit
+   bytes32 constant CORRECT_GUESS = bytes32(uint256(keccak256("ANSWER")) % FIELD_MODULUS); // single hash of "ANSWER"
     
     function setUp() public{
         // deploy the verifier
@@ -22,7 +23,7 @@ contract PanagramTest is Test{
 
 
         // create the answer
-        ANSWER = bytes32(uint256(keccak256("ANSWER")) % FIELD_MODULUS);
+        
 
         // start a new round
         panagram.newRound(ANSWER);
@@ -47,7 +48,7 @@ contract PanagramTest is Test{
     // test someone receives NFT 0 if they guess correctly first
     function testCorrectFirstGuess() public {
         vm.prank(PLAYER1);
-        bytes memory proof = _getProof(ANSWER, ANSWER, PLAYER1);
+        bytes memory proof = _getProof(CORRECT_GUESS, ANSWER, PLAYER1);
         panagram.makeGuess(proof);
         vm.assertEq(panagram.balanceOf(PLAYER1, 0), 1);
         vm.assertEq(panagram.balanceOf(PLAYER1, 1), 0);
@@ -60,14 +61,14 @@ contract PanagramTest is Test{
     // test someone receive s NFT 1 if they guess correctly second
     function testCorrectSecondGuess() public {
         vm.prank(PLAYER1);
-        bytes memory proof = _getProof(ANSWER, ANSWER, PLAYER1);
+        bytes memory proof = _getProof(CORRECT_GUESS, ANSWER, PLAYER1);
         panagram.makeGuess(proof);
         vm.assertEq(panagram.balanceOf(PLAYER1, 0), 1);
         vm.assertEq(panagram.balanceOf(PLAYER1, 1), 0);
 
         address PLAYER2 = makeAddr("user2");
         vm.prank(PLAYER2);
-        bytes memory proof2 = _getProof(ANSWER, ANSWER, PLAYER2);
+        bytes memory proof2 = _getProof(CORRECT_GUESS, ANSWER, PLAYER2);
         panagram.makeGuess(proof2);
         vm.assertEq(panagram.balanceOf(PLAYER2, 0), 0);
         vm.assertEq(panagram.balanceOf(PLAYER2, 1), 1);
@@ -78,13 +79,13 @@ contract PanagramTest is Test{
 
     function testStartSecondRound() public{
         vm.prank(PLAYER1);
-        bytes memory proof = _getProof(ANSWER, ANSWER, PLAYER1);
+        bytes memory proof = _getProof(CORRECT_GUESS, ANSWER, PLAYER1);
         panagram.makeGuess(proof);
         vm.assertEq(panagram.balanceOf(PLAYER1, 0), 1);
         vm.assertEq(panagram.balanceOf(PLAYER1, 1), 0);
 
         vm.warp(panagram.MIN_DURATION() + 1);
-        bytes32 NEW_ANSWER = bytes32(uint256(keccak256("NEW_ANSWER")) % FIELD_MODULUS);
+        bytes32 NEW_ANSWER = bytes32(uint256(keccak256(abi.encodePacked(bytes32(uint256(keccak256("NEW_ANSWER")) % FIELD_MODULUS)))) % FIELD_MODULUS);
         panagram.newRound(NEW_ANSWER);
 
         vm.assertEq(panagram.s_currentRound(), 2);
@@ -93,8 +94,10 @@ contract PanagramTest is Test{
     }
 
     function testIncorrectProof() public {
+        bytes32 INCORRECT_ANSWER = bytes32(uint256(keccak256(abi.encodePacked(bytes32(uint256(keccak256("outnumber")) % FIELD_MODULUS)))) % FIELD_MODULUS); // double hash of "WRONG_ANSWER" as per the circuit
+        bytes32 INCORRECT_GUESS = bytes32(uint256(keccak256("outnumber")) % FIELD_MODULUS); // single hash of "outnumber"
         vm.prank(PLAYER1);
-        bytes memory proof = _getProof(bytes32(uint256(keccak256("outnumber")) % FIELD_MODULUS), bytes32(uint256(keccak256("outnumber")) % FIELD_MODULUS), PLAYER1);
+        bytes memory proof = _getProof(INCORRECT_GUESS, INCORRECT_ANSWER, PLAYER1);
 
         vm.expectRevert();
         panagram.makeGuess(proof);

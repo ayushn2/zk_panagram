@@ -1,0 +1,7 @@
+[package]
+name = "zk_panagram"
+type = "bin"
+authors = [""]
+
+[dependencies]
+keccak256 = { tag = "v0.1.0", git = "https://github.com/noir-lang/keccak256" }

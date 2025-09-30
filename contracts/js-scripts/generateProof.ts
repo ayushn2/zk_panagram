@@ -7,11 +7,11 @@ import fs from "fs";
 
 // get the circuit file with the bytecode
 path.dirname(fileURLToPath(import.meta.url)) //gives the path of the current file
-"../circuits/target/panagram.circuit.json" //gives the path of the circuit file
+"../../circuits/target/zk_panagram.json" //gives the path of the circuit file
 
 const circuitPath = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  "../circuits/target/zk_panagram.json"
+  "../../circuits/target/zk_panagram.json"
 );
 
 const circuit = JSON.parse(fs.readFileSync(circuitPath, "utf-8"))
@@ -39,7 +39,7 @@ export default async function generateProof() {
         // create the inputs
         const inputs = {
         guess_hash: guessHash,
-        answer_hash: answerHash,
+        answer_double_hash: answerHash,
         address: address,
     };
         // Execute the circuit with the inputs to create the witness
